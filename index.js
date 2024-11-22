@@ -11,18 +11,13 @@ import "dotenv/config" ;
 import session from "express-session" ;
 
 const app = express();
-// app.use( 
-//     cors({ 
-//         credentials: true , 
-//         origin: process.env.NETLIFY_URL || "http://localhost:3000",
-//     }) 
-// );
+app.use( 
+    cors({ 
+        credentials: true , 
+        origin: process.env.NETLIFY_URL || "http://localhost:3000",
+    }) 
+);
 
-app.use(cors({
-    origin: ['https://a5--illustrious-queijadas-71de98.netlify.app', 'https://illustrious-queijadas-71de98.netlify.app'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
 const sessionOptions = { 
     secret: process.env.SESSION_SECRET || "kanbas", 
     resave: false , 
