@@ -5,7 +5,10 @@ import * as enrollmentsDao from "../Enrollments/dao.js" ;
 export default function UserRoutes(app) { 
     const createUser = (req, res) => { }; 
     const deleteUser = (req, res) => { }; 
-    const findAllUsers = (req, res) => { }; 
+    const findAllUsers = async (req, res) => { 
+        const users = await dao.findAllUsers(); 
+        res.json(users); 
+    };
     const findUserById = (req, res) => { }; 
     const updateUser = (req, res) => {
         try {
@@ -54,15 +57,15 @@ export default function UserRoutes(app) {
         res.json(updatedUser);
     };
 
-    const signup = (req, res) => {
+    const signup = async (req, res) => {
         try {
-            const existingUser = dao.findUserByUsername(req.body.username);
+            const existingUser = await dao.findUserByUsername(req.body.username);
             if (existingUser) {
                 return res.status(400).json({ message: "Username already in use" });
             }
 
-            const currentUser = dao.createUser(req.body);
-            console.log("New user created:", currentUser); // Debug log
+            const currentUser = await dao.createUser(req.body);
+            console.log("New user created:", currentUser); 
 
             req.session["currentUser"] = currentUser;
             res.json(currentUser);
@@ -71,19 +74,10 @@ export default function UserRoutes(app) {
             res.status(500).json({ message: "Internal server error during signup" });
         }
     };
-    // const signup = (req, res) => {
-    //     const user = dao.findUserByUsername(req.body.username); 
-    //     if (user) { 
-    //         res.status( 400 ).json( { message: "Username already in use" }); 
-    //     return; 
-    //     } 
-    //     const currentUser = dao.createUser(req.body); 
-    //     req.session[ "currentUser" ] = currentUser;
-    //     res.json(currentUser); 
-    // }; 
-    const signin = (req, res) => { 
+   
+    const signin = async (req, res) => { 
         const { username, password } = req.body; 
-        const currentUser = dao.findUserByCredentials(username, password); 
+        const currentUser = await dao.findUserByCredentials(username, password); 
         if (currentUser) { 
             req.session[ "currentUser" ] = currentUser; 
             res.json(currentUser); 
