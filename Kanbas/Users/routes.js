@@ -1,35 +1,66 @@
 import * as dao from "./dao.js" ; 
 import * as courseDao from "../Courses/dao.js" ;
 import * as enrollmentsDao from "../Enrollments/dao.js" ;
+import mongoose from "mongoose";
 
 export default function UserRoutes(app) { 
-    const createUser = (req, res) => { }; 
-    const deleteUser = (req, res) => { }; 
+    const createUser = async (req, res) => { 
+        try {
+            const user = await dao.createUser(req.body);
+            res.json(user);
+        } catch (error) {
+            if (error.code === 11000) {
+                res.status(400).json({ message: "Username already exists" });
+                return;
+            }
+            res.status(500).json({ message: error.message });
+        }
+    };
+    const deleteUser = async (req, res) => { 
+        const status = await dao.deleteUser(req.params.userId); 
+        res.json(status); 
+    };
     const findAllUsers = async (req, res) => { 
+        const { role, name } = req.query; 
+        if (role) { 
+            const users = await dao.findUsersByRole(role); 
+            res.json(users); 
+            return; 
+        }
+        if (name) { 
+            const users = await dao.findUsersByPartialName(name); 
+            res.json(users); 
+            return; 
+        }
         const users = await dao.findAllUsers(); 
         res.json(users); 
     };
-    const findUserById = (req, res) => { }; 
-    const updateUser = (req, res) => {
+    // const findUserById = async (req, res) => { 
+    //     const user = await dao.findUserById(req.params.userId); 
+    //     res.json(user); 
+    // };
+    const findUserById = async (req, res) => {
         try {
             const userId = req.params.userId;
-            const updates = req.body;
-            
-            const updatedUser = dao.updateUser(userId, updates);
-            if (!updatedUser) {
+            const user = await dao.findUserById(userId);
+            if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
-
-            if (req.session["currentUser"]?._id === userId) {
-                req.session["currentUser"] = updatedUser;
-            }
-
-            res.json(updatedUser);
+            res.json(user);
         } catch (error) {
-            console.error("Update user error:", error);
-            res.status(500).json({ message: "Internal server error updating user" });
+            res.status(500).json({ message: error.message });
         }
     };
+    const updateUser = async (req, res) => { 
+        const { userId } = req.params; 
+        const userUpdates = req.body; 
+        await dao.updateUser(userId, userUpdates); 
+        const currentUser = req.session[ "currentUser" ] ; 
+        if (currentUser && currentUser._id === userId) { 
+            req.session[ "currentUser" ] = { ...currentUser, ...userUpdates }; 
+        } 
+        res.json(currentUser); 
+    }
     const updateProfile = (req, res) => {
         const currentUser = req.session["currentUser"];
         if (!currentUser) {

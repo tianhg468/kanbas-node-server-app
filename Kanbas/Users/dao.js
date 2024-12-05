@@ -1,15 +1,17 @@
 import model from "./model.js" ; 
 
 
-// const saveToDb = () => {
-//     db.users = users;
-// };
-
 export const createUser = (user) => {
-    // const newUser = { ...user, _id: String(Date.now()) };
-    // users = [...users, newUser];
-    // saveToDb();
-    // return newUser;
+    delete user._id 
+    return model.create(user);
+};
+
+export const findUsersByRole = (role) => model.find({ role: role });
+export const findUsersByPartialName = (partialName) => { 
+    const regex = new RegExp(partialName, "i" ); 
+    return model.find({ 
+        $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }], 
+    }); 
 };
 
 export const findAllUsers = () => model.find();
@@ -18,7 +20,7 @@ export const findUserById = (userId) => model.findById(userId);
 
 export const findUserByUsername = (username) => model.findOne({username: username});
 
-export const findUserByCredentials = (username, password) => model.findOne({username, password});
+export const findUserByCredentials = (username, password) => model.findOne({username, password})
 
 // Basic user update
 export const updateUser = (userId, user) => model.updateOne({_id: userId}, {$set: user});
@@ -48,7 +50,7 @@ export const isUsernameAvailable = (username, excludeUserId) => {
     );
 };
 
-export const deleteUser = (userId) => deleteOne({_id: userId});
+export const deleteUser = (userId) => model.deleteOne({_id: userId});
 
 // Function to get user profile
 export const getUserProfile = (userId) => {
