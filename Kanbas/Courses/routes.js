@@ -1,5 +1,6 @@
 import * as dao from "./dao.js";
 import * as modulesDao from "../Modules/dao.js";
+import * as enrollmentsDao from "../Enrollments/dao.js" ;
 
 export default function CourseRoutes(app) {
     const createCourse = async (req, res) => {
@@ -18,30 +19,35 @@ export default function CourseRoutes(app) {
         res.send(course);
     };
 
-    const updateCourse = (req, res) => {
+    const updateCourse = async (req, res) => {
         const { courseId } = req.params;
         const courseUpdates = req.body;
-        const status = dao.updateCourse(courseId, courseUpdates);
+        const status = await dao.updateCourse(courseId, courseUpdates);
         res.send(status);
     };
 
-    const deleteCourse = (req, res) => {
+    const deleteCourse = async (req, res) => {
         const { courseId } = req.params;
-        const status = dao.deleteCourse(courseId);
+        const status = await dao.deleteCourse(courseId);
         res.send(status);
     };
 
-    const findModulesForCourse = (req, res) => {
+    const findModulesForCourse = async (req, res) => {
         const { courseId } = req.params;
-        const modules = modulesDao.findModulesForCourse(courseId);
+        const modules = await modulesDao.findModulesForCourse(courseId);
         res.json(modules);
     };
 
-    const createModule = (req, res) => {
+    const createModule = async (req, res) => {
         const { courseId } = req.params;
         const module = { ...req.body, course: courseId };
-        const newModule = modulesDao.createModule(module);
+        const newModule = await modulesDao.createModule(module);
         res.send(newModule);
+    };
+    const findUsersForCourse = async (req, res) => { 
+        const { cid } = req.params; 
+        const users = await enrollmentsDao.findUsersForCourse(cid); 
+        res.json(users); 
     };
 
     app.post("/api/courses", createCourse);
@@ -51,5 +57,6 @@ export default function CourseRoutes(app) {
     app.delete("/api/courses/:courseId", deleteCourse);
     app.get("/api/courses/:courseId/modules", findModulesForCourse);
     app.post("/api/courses/:courseId/modules", createModule);
+    app.get("/api/courses/:cid/users" , findUsersForCourse);
 }
 

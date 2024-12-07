@@ -3,25 +3,25 @@ import * as assignmentDao from "./dao.js";
 export default function AssignmentRoutes(app) {
    
     // Retrieve assignments for a specific course
-    app.get("/api/courses/:courseId/assignments", (req, res) => {
+    app.get("/api/courses/:courseId/assignments", async (req, res) => {
         const { courseId } = req.params;
-        const assignments = assignmentDao.findAssignmentsForCourse(courseId);
+        const assignments = await assignmentDao.findAssignmentsForCourse(courseId);
         res.json(assignments);
     });
 
     // Create a new assignment
-    app.post("/api/courses/:courseId/assignments", (req, res) => {
+    app.post("/api/courses/:courseId/assignments", async (req, res) => {
         const { courseId } = req.params;
         const assignment = { ...req.body, course: courseId };
-        const newAssignment = assignmentDao.createAssignment(assignment);
+        const newAssignment = await assignmentDao.createAssignment(assignment);
         res.status(201).json(newAssignment);
     });
 
     // Update an existing assignment
-    app.put("/api/courses/:courseId/assignments/:assignmentId", (req, res) => {
+    app.put("/api/courses/:courseId/assignments/:assignmentId", async (req, res) => {
         const { assignmentId } = req.params;
         const assignmentUpdates = req.body;
-        const updatedAssignment = assignmentDao.updateAssignment(assignmentId, assignmentUpdates);
+        const updatedAssignment = await assignmentDao.updateAssignment(assignmentId, assignmentUpdates);
         if (updatedAssignment) {
             res.json(updatedAssignment);
         } else {
@@ -30,11 +30,11 @@ export default function AssignmentRoutes(app) {
     });
 
     // Delete an assignment
-    app.delete("/api/courses/:courseId/assignments/:assignmentId", (req, res) => {
+    app.delete("/api/courses/:courseId/assignments/:assignmentId", async (req, res) => {
         const { assignmentId } = req.params;
-        const success = assignmentDao.deleteAssignment(assignmentId);
+        const success = await assignmentDao.deleteAssignment(assignmentId);
         if (success) {
-            res.sendStatus(204); // No Content
+            res.sendStatus(204); 
         } else {
             res.status(404).send({ error: "Assignment not found" });
         }

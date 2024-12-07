@@ -1,30 +1,26 @@
-import Database from "../Database/index.js" ; 
+import Assignment from "./model.js";
+import mongoose from "mongoose" ; 
 
 export function findAllAssignments() {
-    return Database.assignments;
+  return Assignment.find();
 }
 
 export function findAssignmentsForCourse(courseId) {
-    return Database.assignments.filter((assignment) => assignment.course === courseId);
+  return Assignment.find({ course: courseId });
 }
 
 export function createAssignment(assignment) {
-    const newAssignment = { ...assignment, _id: Date.now().toString() };
-    Database.assignments = [...Database.assignments, newAssignment];
-    return newAssignment;
+  const newAssignment = new Assignment({
+    _id: new mongoose.Types.ObjectId().toHexString(),
+    ...assignment,
+  });
+  return newAssignment.save();
 }
 
 export function updateAssignment(assignmentId, assignmentUpdates) {
-    const assignment = Database.assignments.find((a) => a._id === assignmentId);
-    if (assignment) {
-        Object.assign(assignment, assignmentUpdates);
-        return assignment;
-    }
-    return null;
+  return Assignment.findByIdAndUpdate(assignmentId, assignmentUpdates, { new: true });
 }
 
 export function deleteAssignment(assignmentId) {
-    const originalLength = Database.assignments.length;
-    Database.assignments = Database.assignments.filter((a) => a._id !== assignmentId);
-    return Database.assignments.length < originalLength; // Return true if an assignment was deleted
+  return Assignment.findByIdAndDelete(assignmentId);
 }
