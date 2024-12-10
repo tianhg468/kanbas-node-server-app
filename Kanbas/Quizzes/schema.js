@@ -1,18 +1,19 @@
 import mongoose from "mongoose";
 
 const questionSchema = new mongoose.Schema({
-  _id: { type: String, required: true },
-  title: { type: String, required: true },
-  points: { type: Number, required: true, default: 1 },
+  _id: { type: String },
+  title: { type: String },
+  points: { type: Number, default: 1 },
+  text: { type: String },
   type: { 
     type: String,
-    enum: ["MULTIPLE_CHOICE", "TRUE_FALSE", "FILL_IN_BLANK"],
+    enum: ["Multiple Choice", "True/False", "Fill in the Blank"],
     required: true 
   },
-  question: { type: String, required: true },
-  correctAnswer: { type: mongoose.Schema.Types.Mixed, required: true },
-  choices: [String],
-  order: { type: Number, required: true }
+  question: { type: String},
+  correctAnswer: { type: mongoose.Schema.Types.Mixed },
+  options: [String],
+  order: { type: Number}
 });
 
 const quizSchema = new mongoose.Schema({
@@ -48,18 +49,21 @@ const quizSchema = new mongoose.Schema({
 }, { collection: "quizzes" });
 
 const attemptSchema = new mongoose.Schema({
-  _id: { type: String, required: true },
-  quizId: { type: String, required: true },
-  userId: { type: String, required: true },
-  startTime: { type: String, required: true },
+  _id: { type: String},
+  quizId: { type: String},
+  userId: { type: String },
+  startTime: { type: String},
   endTime: { type: String },
   score: { type: Number, default: 0 },
   answers: [{
-    questionId: { type: String, required: true },
-    answer: { type: mongoose.Schema.Types.Mixed },
-    correct: { type: Boolean }
+    questionId: { type: String },
+    selectedAnswer: { type: String, default: null },
+    points: { type: Number, required: true },
+    correct: { type: Boolean, required: true },
   }],
   completed: { type: Boolean, default: false }
 }, { collection: "quiz_attempts" });
+
+
 
 export { quizSchema, attemptSchema };
